@@ -1,0 +1,135 @@
+
+<group name="custom_audit">
+
+<rule id="100351" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">USER_ACCT</field>
+    <description>Auditd: User acctivity</description>
+</rule>
+
+<rule id="100352" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">USER_CMD</field>
+    <description>Auditd: User cmd</description>
+</rule>
+
+<rule id="100353" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">USER_LOGIN</field>
+    <description>Auditd: User login</description>
+</rule>
+
+<rule id="100354" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">USER_LOGOUT</field>
+    <description>Auditd: User logout</description>
+</rule>
+
+<rule id="100355" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">USER_AUTH</field>
+    <description>Auditd: User auth.</description>
+</rule>
+
+<rule id="100356" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">USER_START</field>
+    <description>Auditd: User start</description>
+</rule>
+
+<rule id="100357" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">USER_END</field>
+    <description>Auditd: User end</description>
+</rule>
+
+<rule id="100358" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">CRED_REFR</field>
+    <description>Auditd: Credentianl reffered</description>
+</rule>
+
+<rule id="100359" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">CRED_DISP</field>
+    <description>Auditd: Cred disp.</description>
+</rule>
+
+<rule id="100360" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">CRED_ACQ</field>
+    <description>Auditd: Cred acq.</description>
+</rule>
+
+<rule id="100361" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">CRED_DISP</field>
+    <description>Auditd: Cred disp.</description>
+</rule>
+
+<rule id="100362" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">CRYPTO_KEY_USER</field>
+    <description>Auditd: Crypto key user</description>
+</rule>
+
+<rule id="100363" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">CRYPTO_SESSION</field>
+    <description>Auditd: Crypto session</description>
+</rule>
+
+<rule id="100364" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">SERVICE_START</field>
+    <description>Auditd: Service start</description>
+</rule>
+
+<rule id="100365" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">SYSCALL</field>
+    <description>Auditd: Syscall</description>
+</rule>
+
+<rule id="100366" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">CWD</field>
+    <description>Auditd: Cwd</description>
+</rule>
+
+<rule id="100367" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">PATH</field>
+    <description>Auditd: Path</description>
+</rule>
+
+<rule id="100368" level="3">
+    <if_sid>80700</if_sid>
+    <field name="audit.type">PROCTITLE</field>
+    <description>Auditd: Proctitle</description>
+</rule>
+
+<rule id="100369" level="3">
+    <if_sid>100365</if_sid>
+    <field name="audit.pid">(\S+)</field>
+    <description>Auditd: PID</description>    
+</rule>
+
+<rule id="100370" level="3" ignore="180">
+    <if_sid>100369</if_sid>
+    <description>Auditd: PID</description>    
+</rule>
+
+<rule id="100371" level="3">
+    <if_sid>100365</if_sid>
+    <field name="audit.proctitle.msg">(\S+)</field>
+    <description>Auditd: evento de syscall encodeado</description>    
+</rule>
+
+<rule id="100390" level="3">
+    <field name="integration">custom-auditd_decoder</field>
+    <description>Auditd: evento decodeado</description>    
+</rule>
+
+
+</group>
