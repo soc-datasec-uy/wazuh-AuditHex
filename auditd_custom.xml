@@ -123,12 +123,12 @@
 <rule id="100371" level="3">
     <if_sid>100365</if_sid>
     <field name="audit.proctitle.msg">(\S+)</field>
-    <description>Auditd: evento de syscall encodeado</description>    
+    <description>Auditd: Encoded Syscall event</description>    
 </rule>
 
 <rule id="100390" level="3">
     <field name="integration">custom-auditd_decoder</field>
-    <description>Auditd: evento decodeado</description>    
+    <description>Auditd: Decoded Event</description>    
 </rule>
 
 

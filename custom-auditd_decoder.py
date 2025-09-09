@@ -11,7 +11,7 @@ import copy
 
 # Config
 INTEGRATION_TAG = "custom-auditd_decoder"
-DEBUG_ENABLED = True  # se puede activar también pasando 'debug' como arg
+DEBUG_ENABLED = True
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -58,18 +58,18 @@ def decode_hex(s):
 
 
 def create_alert(decoded_string, original_alert):
-    # Clonar todo el árbol 'audit' del evento original
+    # Clone the the whole tree 'audit' from the source event
     original_audit = copy.deepcopy(
         (original_alert.get("data") or {}).get("audit", {})
     )
 
-    # Asegurar niveles y agregar el campo decodificado
+    # Add levels and the decoded field
     proctitle = original_audit.setdefault("proctitle", {})
     if decoded_string is not None:
         decoded_clean = decoded_string.replace("\x00", " ").strip()
         proctitle["decoded"] = decoded_clean
 
-    # Construir el evento derivado
+    # Generate the new event
     alert_output = {
         "integration": INTEGRATION_TAG,
         "derived": True,
@@ -93,7 +93,7 @@ def send_event(msg, agent=None):
         debug(f"# json.dumps error: {e}")
         return
 
-    # Manager vs agente
+    # Manager vs agent
     if not agent or agent.get("id") == "000":
         wire = f"1:{INTEGRATION_TAG}:{payload}"
     else:
@@ -117,7 +117,7 @@ def main(argv):
         debug("# Exiting: Bad arguments (need alert file path)")
         sys.exit(1)
 
-    # flag debug opcional
+    # optional debug flag
     global DEBUG_ENABLED
     DEBUG_ENABLED = any(a.lower() == "debug" for a in argv[2:]) or DEBUG_ENABLED
 
@@ -127,7 +127,7 @@ def main(argv):
     with open(alert_file_location, "r", encoding="utf-8") as alert_file:
         original_alert = json.load(alert_file)
 
-    # Ruta robusta al campo hex
+    # Robust path to hex field
     hex_string = (
         (original_alert.get("data") or {})
         .get("audit", {})
@@ -138,7 +138,6 @@ def main(argv):
     decoded_string = decode_hex(hex_string) if hex_string else None
     msg = create_alert(decoded_string, original_alert)
     send_event(msg, original_alert.get("agent"))
-
 
 
 
